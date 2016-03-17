@@ -21,6 +21,8 @@ if "bpy" in locals():
         importlib.reload(skel_module)
     if "skanim_module" in locals():
         importlib.reload(skanim_module)
+    if "mesh_module" in locals():
+        importlib.reload(mesh_module)
 
 
 # MESH exporter
@@ -38,6 +40,9 @@ class MeshExporter(bpy.types.Operator, ExportHelper):
     )
 
     def execute(self, context):
+        from . import mesh_module
+
+        mesh_module.export_mesh(self, context)
         return {'FINISHED'}
 
 
