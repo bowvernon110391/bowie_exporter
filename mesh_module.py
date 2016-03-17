@@ -3,6 +3,7 @@ from mathutils import *
 
 from . import helper
 
+MESH_VERSION = 1
 
 class MyVertex:
     def __init__(self):
@@ -181,14 +182,17 @@ class MyMesh:
                 # add to grp_tris
                 grp_tris.append(new_vertex_id)
 
+        # done. return TRUE
+        return True
+
 
 def export_mesh(self, ctx):
     mesh = MyMesh()
     ob = ctx.object
-    print(ob.type)
+    # print(ob.type)
     if mesh.read_from_object(ob):
         self.report({'INFO'}, "Reading mesh done")
-        write_mesh_ascii(self.filepath, mesh)
+        write_mesh(self.filepath, mesh)
     else:
         self.report({'ERROR'}, "Something's wrong. Check console window!")
 
@@ -210,20 +214,98 @@ def write_mesh_ascii(filename, mesh):
 
     # write index count
     icount = 0
-    for grp in mesh.group_tris:
-        icount += len(grp)
+    for i in range(0, len(mesh.group_tris)):
+        icount += len(mesh.group_tris[i])
     fw("icount: %d\n" % icount)
 
     # write vertices data right below that
+    v_idx = 0
     for v in mesh.vertices:
         # write data that must be there
-        fw("%.6f %.6f %.6f | %.6f %.6f %.6f | %.6f %.6f" % (v.pos.x, v.pos.y, v.pos.z,
-                                                            v.normal.x, v.normal.y, v.normal.z,
-                                                            v.uv.x, v.uv.y))
+        fw("%d: %.6f %.6f %.6f | %.6f %.6f %.6f | %.6f %.6f" % (v_idx, v.pos.x, v.pos.y, v.pos.z,
+                                                                v.normal.x, v.normal.y, v.normal.z,
+                                                                v.uv.x, v.uv.y))
+        v_idx += 1
+
         if mesh.has_weights:
             fw(" | %d %d %d %d | %.6f %.6f %.6f %.6f" % (v.bone_ids[0], v.bone_ids[1], v.bone_ids[2], v.bone_ids[3],
                                                          v.bone_ws[0], v.bone_ws[1], v.bone_ws[2], v.bone_ws[3]))
 
         fw("\n")
+
+    # write group data after vertices
+    icount = 0
+    for i in range(0, len(mesh.group_tris)):
+        fw("%s : %d, %d\n" % (mesh.group_matname[i], icount, len(mesh.group_tris[i])))
+        icount += len(mesh.group_tris[i])
+
+    # then straight out write indices
+    icount = 0
+    for i in range(0, len(mesh.group_tris)):
+        for v_idx in mesh.group_tris[i]:
+            fw("%d: %d\n" % (icount, v_idx))
+            icount += 1
+
+    file.close()
+
+
+def write_mesh(filename, mesh):
+    file = open(filename, "wb")
+
+    fw = file.write
+    # first, header
+    # header = [version, vert_format_id] -> 2 bytes
+    vformat = 0
+    if mesh.has_weights:
+        vformat = 1
+
+    header = [MESH_VERSION, vformat]
+    fw(helper.make_buffer('B', header))
+
+    # mesh_info = [vcount, icount, num_goup]  ->  6 bytes
+    vcount = len(mesh.vertices)
+    icount = 0
+    for i in range(0, len(mesh.group_tris)):
+        icount += len(mesh.group_tris[i])
+
+    gcount = len(mesh.group_tris)
+
+    mesh_info = [vcount, icount, gcount]
+    fw(helper.make_buffer('H', mesh_info))
+
+    # next, write vertices. depending on how it's stored
+    for v in mesh.vertices:
+
+        # first write all common vertex data
+        fw(helper.make_buffer('f', v.pos))
+        fw(helper.make_buffer('f', v.normal))
+        fw(helper.make_buffer('f', v.uv))
+        # add bone data if exists
+        if mesh.has_weights:
+            bone_ids = [int(v.bone_ids[0]), int(v.bone_ids[1]), int(v.bone_ids[2]), int(v.bone_ids[3])]
+            fw(helper.make_buffer('B', bone_ids))
+            fw(helper.make_buffer('f', v.bone_ws))
+
+    # now, write group data
+    icount = 0
+    for i in range(0, len(mesh.group_tris)):
+        # first, write group name  ->  32 bytes
+        grp_name = mesh.group_matname[i]
+        # pad till 32 bytes
+        while len(grp_name) < 32:
+            grp_name += chr(0)
+
+        fw(grp_name.encode('utf-8'))
+        # then, index data
+        # index_data = [start, len]
+        index_data = [icount, len(mesh.group_tris[i])]
+        fw(helper.make_buffer('H', index_data))
+
+        # advance index start
+        icount += index_data[1]
+
+    # finally, write the real index
+    for i in range(0, len(mesh.group_tris)):
+        fw(helper.make_buffer('H', mesh.group_tris[i]))
 
     file.close()
