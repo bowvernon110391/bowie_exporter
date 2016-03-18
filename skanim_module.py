@@ -129,12 +129,12 @@ class SkAnim:
                         bone_transform.rot = rot.copy()
 
                         kf_data.bone_pose[bone_ids[b.name]] = copy.copy(bone_transform)
-                        if bone_ids[b.name] == 12:
-                            print("%d: %.4f %.4f %.4f" % (bone_ids[b.name], head.x, head.y, head.z))
-                            # print("\t\t%s(%d) | %f %f %f | %f %f %f | %f %f %f %f" % (b.name, bone_ids[b.name],
-                            #                                                           head.x, head.y, head.z,
-                            #                                                           tail.x, tail.y, tail.z,
-                            #                                                           rot.x, rot.y, rot.z, rot.w) )
+                        # if bone_ids[b.name] == 12:
+                        #     print("%d: %.4f %.4f %.4f" % (bone_ids[b.name], head.x, head.y, head.z))
+                        #     # print("\t\t%s(%d) | %f %f %f | %f %f %f | %f %f %f %f" % (b.name, bone_ids[b.name],
+                        #     #                                                           head.x, head.y, head.z,
+                        #     #                                                           tail.x, tail.y, tail.z,
+                        #     #                                                           rot.x, rot.y, rot.z, rot.w) )
                     # let's add keyframe data
                     ac_data.keyframes.append(copy.copy(kf_data))
                 # let's add to action
@@ -145,103 +145,7 @@ class SkAnim:
         return False
 
     def log(self):
-        file = open("D:\\log.txt", "w")
-
-        fw = file.write
-
-        for ac in self.actions:
-            fw("%s: %d\n" % (ac.name, ac.num_keyframe))
-            for kf in ac.keyframes:
-                fw("\t%f: " % kf.time)
-                t = kf.bone_pose[12]
-                fw("%f %f %f\n" % (t.head.x, t.head.y, t.head.z))
-
-        file.close()
-
-        # def build_from_context2(self, ctx):
-        #     ob = ctx.object
-        #     sc = ctx.scene
-        #
-        #     if ob.type == 'ARMATURE':
-        #         bone_ids = helper.build_bone_ids(ob.data)
-        #         self.helper_dict = bone_ids
-        #
-        #         # the number of usable bones
-        #         bone_len = len(bone_ids)
-        #         self.bones_per_keyframe = bone_len
-        #
-        #         print("BONE_COUNT: %d" % len(bone_ids))
-        #         acs = bpy.data.actions
-        #
-        #         self.num_action = len(acs)
-        #
-        #         # for each action
-        #         for ac in acs:
-        #             # check
-        #             print("before: %s" % ob.animation_data.action.name)
-        #             # set animation data
-        #             ob.animation_data.action = ac
-        #
-        #             print("after: %s" % ob.animation_data.action.name)
-        #
-        #             print(ac.name)
-        #
-        #
-        #             # grab keyframe time
-        #             kfs = ac.fcurves[0].keyframe_points
-        #
-        #             # create action
-        #             self.add_action(ac.name, len(kfs))
-        #
-        #             # for each keyframe
-        #             for i, kf in enumerate(kfs):
-        #                 # create new key frame
-        #                 # kf_data = SkAnim.Action.Keyframe()
-        #                 self.add_keyframe(kf.co.x, bone_len)
-        #
-        #                 print("\t%d: time %f" % (i, kf.co.x) )
-        #
-        #                 # set scene frame to keyframe time
-        #                 sc.frame_set(kf.co.x)
-        #                 # now iterate over each posebone,
-        #                 # grabbing data on the way
-        #
-        #                 # for each pose bone
-        #                 for b in ob.pose.bones:
-        #                     # skip ik bones
-        #                     if not helper.is_valid_bone(b):
-        #                         continue
-        #
-        #                     # good to go
-        #                     head = b.head
-        #                     tail = b.tail
-        #                     rot = b.matrix.to_quaternion()
-        #
-        #                     bone_transform = skel_module.Skeleton.Bone.Transform()
-        #                     bone_transform.head = head
-        #                     bone_transform.tail = tail
-        #                     bone_transform.rot = rot
-        #
-        #                     self.add_bone_pose(bone_ids[b.name])
-        #
-        #                     self.last_transform.head = head
-        #                     self.last_transform.tail = tail
-        #                     self.last_transform.rot = rot
-        #
-        #                     # kf_data.bone_pose[ bone_ids[b.name] ] = bone_transform
-        #                     if bone_ids[b.name] == 12:
-        #                         print("%d: %.4f %.4f %.4f" % (bone_ids[b.name], head.x, head.y, head.z) )
-        #                     # print("\t\t%s(%d) | %f %f %f | %f %f %f | %f %f %f %f" % (b.name, bone_ids[b.name],
-        #                     #                                                           head.x, head.y, head.z,
-        #                     #                                                           tail.x, tail.y, tail.z,
-        #                     #                                                           rot.x, rot.y, rot.z, rot.w) )
-        #                 # let's add keyframe data
-        #             # let's add to action
-        #         # we succeeds
-        #         return True
-        #     # not an armature
-        #     return False
-        #
+        return False
 
 
 def write_anim_data_ascii(filename, skanim):

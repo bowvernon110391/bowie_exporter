@@ -62,6 +62,12 @@ class Skeleton:
 
         return True
 
+    def get_bone_id(self, name):
+        for i, b in enumerate(self.bones):
+            if name == b.name:
+                return i
+        return -1
+
 
 def write_skeleton(filename, skel):
     # write skeleton in ascii plain text

@@ -23,6 +23,8 @@ if "bpy" in locals():
         importlib.reload(skanim_module)
     if "mesh_module" in locals():
         importlib.reload(mesh_module)
+    if "helper" in locals():
+        importlib.reload(helper)
 
 
 # MESH exporter

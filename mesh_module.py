@@ -98,6 +98,7 @@ class MyMesh:
         return len(self.vertices) - 1
 
     def read_from_object(self, ob):
+        lf = open("D:\\bone_id.txt", "w")
         # return false if something's wrong
         if ob.type != 'MESH':
             print("Selected object is not a mesh!")
@@ -108,6 +109,7 @@ class MyMesh:
         tris = mesh.polygons
         mats = mesh.materials
         groups = None
+        skel = None
 
         # if it has weights, there should be an armature
         if len(ob.vertex_groups) > 0:
@@ -117,10 +119,11 @@ class MyMesh:
         if self.has_weights:
             if len(bpy.data.armatures) < 1:
                 return False
+
+        from . import skel_module
+        skel = skel_module.Skeleton()
+        skel.build_from_armature(bpy.data.armatures[0])
         # build consistent bone indices
-        bone_ref_ids = {}
-        if self.has_weights:
-            bone_ref_ids = helper.build_bone_ids(bpy.data.armatures[0])
 
         # resize group_data to hold unordered shit
         for c in range(0, len(mats)):
@@ -163,19 +166,26 @@ class MyMesh:
                 if self.has_weights:
                     # copy it
                     # print("\tbone_count: %d" % len(v_data.groups), end=" ")
+
                     for gi in range(0, len(v_data.groups)):
-                        g_idx = v_data.groups[gi].group;
+                        g_idx = v_data.groups[gi].group
                         # group name == bone name
                         b_name = groups[g_idx].name
-                        g_w = v_data.groups[gi].weight;
-                        bone_ids[gi] = bone_ref_ids[b_name]
+                        g_w = v_data.groups[gi].weight
+                        # test it
+                        r_id = skel.get_bone_id(b_name)
+
+                        print("%s -> %d" % (b_name, r_id))
+                        lf.write("%s -> %d\n" % (b_name, r_id))
+
+                        bone_ids[gi] = r_id
                         bone_ws[gi] = g_w
                 # now vertex data is complete
-                new_vertex.pos = v_pos
-                new_vertex.normal = v_nor
-                new_vertex.uv = uv_data
-                new_vertex.bone_ids = bone_ids
-                new_vertex.bone_ws = bone_ws
+                new_vertex.pos = v_pos.copy()
+                new_vertex.normal = v_nor.copy()
+                new_vertex.uv = uv_data.copy()
+                new_vertex.bone_ids = bone_ids.copy()
+                new_vertex.bone_ws = bone_ws.copy()
 
                 new_vertex_id = self.get_vertex_id(new_vertex)
                 # print(new_vertex_id)
@@ -183,6 +193,7 @@ class MyMesh:
                 grp_tris.append(new_vertex_id)
 
         # done. return TRUE
+        lf.close()
         return True
 
 
