@@ -128,6 +128,12 @@ class SkAnim:
                         bone_transform.tail = tail.copy()
                         bone_transform.rot = rot.copy()
 
+                        # for animation data (which is already absolute)
+                        # CORRRECT THEM ALL!!!!
+                        bone_transform.head = helper.correct_pos_opengl(bone_transform.head)
+                        bone_transform.tail = helper.correct_pos_opengl(bone_transform.tail)
+                        bone_transform.rot = helper.correct_rot_opengl(bone_transform.rot)
+
                         kf_data.bone_pose[bone_ids[b.name]] = copy.copy(bone_transform)
                         # if bone_ids[b.name] == 12:
                         #     print("%d: %.4f %.4f %.4f" % (bone_ids[b.name], head.x, head.y, head.z))

@@ -153,9 +153,11 @@ class MyMesh:
                 v_data = verts[v_idx]
                 # strip vertex data
                 # -position
-                v_pos = v_data.co
+                v_pos = v_data.co.copy()
+                # correct position data
+                v_pos = helper.correct_pos_opengl(v_pos)
                 # -normal
-                v_nor = v_data.normal
+                v_nor = v_data.normal.copy()
                 # -uv
                 uv_idx = t.loop_indices[ti]
                 uv_data = uvs[uv_idx].uv

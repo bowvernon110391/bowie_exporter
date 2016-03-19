@@ -39,15 +39,25 @@ class Skeleton:
             new_bone = self.Bone()
             new_bone.name = b.name
 
+            # shall we correct?
+            need_correction = False
+
             if b.parent is not None:
                 new_bone.parent_name = b.parent.name
                 new_bone.parent_id = bone_ids[new_bone.parent_name]
             else:
                 new_bone.parent_name = "null"
+                need_correction = True
 
-            new_bone.local.head = b.head
-            new_bone.local.tail = b.tail
-            new_bone.local.rot = b.matrix.to_quaternion()
+            new_bone.local.head = b.head.copy()
+            new_bone.local.tail = b.tail.copy()
+            new_bone.local.rot = b.matrix.to_quaternion().copy()
+
+            # correct em if they need em
+            if need_correction:
+                new_bone.local.head = helper.correct_pos_opengl(new_bone.local.head)
+                new_bone.local.tail = helper.correct_pos_opengl(new_bone.local.tail)
+                new_bone.local.rot = helper.correct_rot_opengl(new_bone.local.rot)
             # log em
             print("==============")
             print(new_bone.name)

@@ -1,6 +1,23 @@
 import array
+import math
 import sys
 
+from mathutils import *
+
+
+def correct_pos_opengl(vec):
+    old_y = vec.y
+    vec.y = vec.z
+    vec.z = -old_y
+    return vec
+
+
+def correct_rot_opengl(rot):
+    print("Correcting: %f %f %f %f" % (rot.x, rot.y, rot.z, rot.w))
+    q_rot_x_neg90 = Quaternion(Vector([1, 0, 0]), -0.5 * math.pi)
+    rot = q_rot_x_neg90 * rot
+    print("Corrected: %f %f %f %f" % (rot.x, rot.y, rot.z, rot.w))
+    return rot
 
 def make_buffer(format, data):
     buf = array.array(format, data)
